@@ -278,7 +278,7 @@ class MSHR(id: Int)(implicit edge: TLEdgeOut, p: Parameters) extends L1HellaCach
   val meta_hazard = RegInit(0.U(2.W))
   when (meta_hazard =/= 0.U) { meta_hazard := meta_hazard + 1.U }
   when (io.meta_write.fire) { meta_hazard := 1.U }
-  io.probe_rdy := !idx_match || (!state.isOneOf(states_before_refill) && meta_hazard === 0.U)
+  io.probe_rdy := !idx_match || (!state.isOneOf(states_before_refill :+ s_meta_write_req) && meta_hazard === 0.U)
 
   io.meta_write.valid := state.isOneOf(s_meta_write_req, s_meta_clear)
   io.meta_write.bits.idx := req_idx
