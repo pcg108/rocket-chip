@@ -903,7 +903,9 @@ class Rocket(tile: RocketTile)(implicit p: Parameters) extends CoreModule()(p)
 
   io.vector.foreach { v =>
     when (v.wb.retire || v.wb.xcpt || wb_ctrl.vec) {
-      csr.io.pc := v.wb.pc
+      // Core exceptions have priority over vector exceptions below. Keep their
+      // scalar trap PC too; the vector frontend may hold an older instruction.
+      when (!wb_reg_xcpt) { csr.io.pc := v.wb.pc }
       csr.io.retire := v.wb.retire
       csr.io.inst(0) := v.wb.inst
       when (v.wb.xcpt && !wb_reg_xcpt) {
